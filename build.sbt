@@ -5,13 +5,12 @@ name := """phantom-poc"""
 version := "1.0"
 
 scalaVersion := "2.11.7"
-val phantomVersion = "1.12.2"
-val cassandraVersion = "2.1.4"
-
+lazy val phantomVersion = "1.12.2"
+lazy val cassandraVersion = "2.1.4"
 
 resolvers ++= Seq(
-  "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-  "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
+  "Typesafe repository snapshots"    at "http://repo.typesafe.com/typesafe/snapshots/",
+  "Typesafe repository releases"     at "http://repo.typesafe.com/typesafe/releases/",
   "Sonatype repo"                    at "https://oss.sonatype.org/content/groups/scala-tools/",
   "Sonatype releases"                at "https://oss.sonatype.org/content/repositories/releases",
   "Sonatype snapshots"               at "https://oss.sonatype.org/content/repositories/snapshots",
@@ -20,9 +19,6 @@ resolvers ++= Seq(
   "Twitter Repository"               at "http://maven.twttr.com",
   Resolver.bintrayRepo("websudos", "oss-releases")
 )
-
-
-
 
 // Change this to another test framework if you prefer
 libraryDependencies ++= Seq(
@@ -39,7 +35,6 @@ libraryDependencies ++= Seq(
 
 // Uncomment to use Akka
 //libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.3.11"
-
 
 fork in run := true
 
