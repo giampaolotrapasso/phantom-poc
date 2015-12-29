@@ -1,5 +1,6 @@
 import com.typesafe.sbt.SbtScalariform._
 
+
 name := """phantom-poc"""
 
 version := "1.0"
@@ -37,5 +38,8 @@ libraryDependencies ++= Seq(
 //libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.3.11"
 
 fork in run := true
+
+enablePlugins(PhantomSbtPlugin)
+
 
 scalariformSettings

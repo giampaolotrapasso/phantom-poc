@@ -6,8 +6,10 @@ import com.websudos.phantom.db.DatabaseImpl
 import com.giampaolotrapasso.phantom.models._
 import com.websudos.phantom.dsl.Batch
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+//import scala.concurrent.ExecutionContext.Implicits.global
+
+import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.concurrent.duration._
 
 class Database(val keyspace: KeySpaceDef) extends DatabaseImpl(keyspace) {
 
@@ -18,15 +20,6 @@ class Database(val keyspace: KeySpaceDef) extends DatabaseImpl(keyspace) {
   object events extends EventTable with keyspace.Connector
 
   object postByAuthor extends PostByAuthorTable with keyspace.Connector
-
-  def updateSchema = {
-    for {
-      p <- posts.create.ifNotExists().future()
-      c <- comments.create.ifNotExists().future()
-      e <- events.create.ifNotExists().future()
-      pba <- postByAuthor.create.ifNotExists().future()
-    } yield (p, c, e, pba)
-  }
 
   def insertPostBatch(post: Post, event: Event) = {
 
@@ -51,7 +44,7 @@ class Database(val keyspace: KeySpaceDef) extends DatabaseImpl(keyspace) {
       .future()
   }
 
-  def insertPost(post: Post) = {
+  def insertPost(post: Post): Future[ResultSet] = {
     val event = Event(postId = post.id, timestamp = post.timestamp, eventType = "Insert")
 
     val postByAuthor = PostByAuthor(
@@ -62,9 +55,9 @@ class Database(val keyspace: KeySpaceDef) extends DatabaseImpl(keyspace) {
     )
 
     Batch.logged
-      .add(BlogDatabase.postByAuthor.insertNewStatement(postByAuthor))
-      .add(BlogDatabase.posts.insertNewStatement(post))
-      .add(BlogDatabase.events.insertNewStatement(event))
+      .add(this.postByAuthor.insertNewStatement(postByAuthor))
+      .add(posts.insertNewStatement(post))
+      .add(events.insertNewStatement(event))
       .future()
   }
 

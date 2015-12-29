@@ -26,8 +26,10 @@ object SimpleRun extends App {
     ccm create -v 2.1.5 -n 3 clusterTest
     ccm start
   */
+  implicit val session = BlogDatabase.session
+  implicit val space = BlogDatabase.space
 
-  Await.result(BlogDatabase.updateSchema, 10 seconds)
+  Await.result(BlogDatabase.autocreate().future, 10 seconds)
 
   val post = Post(
     id = UUID.randomUUID(), title = "Hello world",

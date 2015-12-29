@@ -5,14 +5,16 @@ import java.util.UUID
 import com.websudos.phantom.connectors.KeySpace
 import com.giampaolotrapasso.phantom.models.Post
 import org.joda.time.DateTime
+import org.scalatest.concurrent.ScalaFutures
 
 import collection.mutable.Stack
 import org.scalatest._
 
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class InsertSpec extends TestSuite {
+class BasicOperationsTest extends TestSuite {
 
   "A BlogDatabase" should "insert correctly a blog post" in {
 
@@ -27,18 +29,16 @@ class InsertSpec extends TestSuite {
       timestamp = DateTime.now()
     )
 
-    TestBlogDatabase.insertPost(post)
+    val result = for {
+      insert <- TestBlogDatabase.insertPost(post)
+      select <- TestBlogDatabase.posts.selectById(post.id)
+    } yield (insert, select)
 
-    val eventualMaybePost: Future[Option[Post]] = TestBlogDatabase.posts.selectById(post.id)
+    val maybeSelect = result.futureValue._2
 
-    val maybePost = eventualMaybePost.futureValue
-    maybePost.isDefined should equal(true)
-    maybePost.get.id should equal(post.id)
-    maybePost.get.author should equal(post.author)
-
-  }
-
-  it should "throw NoSuchElementException if an empty stack is popped" in {
+    maybeSelect.isDefined should equal(true)
+    maybeSelect.get.id should equal(post.id)
+    maybeSelect.get.author should equal(post.author)
 
   }
 
