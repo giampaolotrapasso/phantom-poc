@@ -23,7 +23,7 @@ case class Post(
 
 sealed class PostColumnFamily extends CassandraTable[PostColumnFamily, Post] {
 
-  object id extends UUIDColumn(this) with PartitionKey[UUID]
+  object id extends TimeUUIDColumn(this) with PartitionKey[UUID]
 
   object title extends StringColumn(this) with ClusteringOrder[String]
 

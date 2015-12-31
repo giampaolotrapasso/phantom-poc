@@ -4,6 +4,7 @@ import java.util.UUID
 
 import com.websudos.phantom.connectors.KeySpace
 import com.giampaolotrapasso.phantom.models.Post
+import org.apache.cassandra.utils.UUIDGen
 import org.joda.time.DateTime
 import org.scalatest.concurrent.ScalaFutures
 
@@ -19,7 +20,7 @@ class BasicOperationsTest extends TestSuite {
   "A BlogDatabase" should "insert correctly a blog post" in {
 
     val post = Post(
-      id = UUID.randomUUID(), title = "Hello world",
+      id = UUIDGen.getTimeUUID, title = "Hello world",
       author = "Brian W. Kernighan",
       text = """The only way to learn a new programming language is by writing programs
                |in it. The first program to write is the same for all languages:

@@ -14,7 +14,7 @@ case class Event(postId: UUID, eventType: String, timestamp: DateTime)
 
 sealed class EventColumnFamily extends CassandraTable[EventColumnFamily, Event] {
 
-  object postId extends UUIDColumn(this) with PartitionKey[UUID]
+  object postId extends TimeUUIDColumn(this) with PartitionKey[UUID]
 
   object timestamp extends DateTimeColumn(this) with ClusteringOrder[DateTime] with Descending
 

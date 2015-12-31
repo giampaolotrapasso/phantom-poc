@@ -1,20 +1,13 @@
 package com.giampaolotrapasso.phantom
 
-import java.util.UUID
-import java.util.concurrent.TimeUnit
-
-import com.datastax.driver.core.{ ResultSetFuture, ResultSet }
-
-import com.giampaolotrapasso.phantom.models.{ Event, Post, PostTable }
+import com.giampaolotrapasso.phantom.models.{ Post, PostByAuthor }
+import org.apache.cassandra.utils.UUIDGen
 import org.joda.time.DateTime
 
-import scala.collection.JavaConversions._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, Future }
-
-import scala.util.{ Try, Success, Failure }
-
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{ Failure, Success }
 
 object SimpleRun extends App {
 
@@ -31,8 +24,10 @@ object SimpleRun extends App {
 
   Await.result(BlogDatabase.autocreate().future, 10 seconds)
 
-  val post = Post(
-    id = UUID.randomUUID(), title = "Hello world",
+  val timestamp = DateTime.now
+
+  val post1 = Post(
+    id = UUIDGen.getTimeUUID, title = "Hello world",
     author = "Brian W. Kernighan",
     text = """The only way to learn a new programming language is by writing programs
              |in it. The first program to write is the same for all languages:
@@ -42,59 +37,81 @@ object SimpleRun extends App {
     timestamp = DateTime.now()
   )
 
-  val futureResultSet = BlogDatabase.posts.insertNew(post)
-
-  futureResultSet onComplete {
-    case Success(resultSet) => resultSet.all().foreach(println)
-    case Failure(t) => println("An error has occurred: " + t.getMessage)
-  }
-
-  val timestamp = DateTime.now
-
-  val otherPost = Post(
-    id = UUID.randomUUID(),
+  val post2 = Post(
+    id = UUIDGen.getTimeUUID(),
     title = "Pimp my library",
-    author = "Odersky",
+    author = "Martin Odersky",
     text =
       """There's a fundamental difference between your own code and libraries of other people:
         |You can change or extend your own code, but if you want to use some
         |other libraries you have to take them as they are.""".stripMargin,
     tags = Set("Scala", "implicits"),
-    timestamp = timestamp
+    timestamp = new DateTime(2006, 10, 9, 0, 0, 0)
   )
 
-  // something batchy
-  val event = Event(postId = otherPost.id, timestamp = timestamp, eventType = "Insert")
-
-  val futureBatch = BlogDatabase.insertPostBatch(otherPost, event)
-
-  futureBatch onComplete {
-    case Success(resultSet) => {
-      println("Batch OK")
-      resultSet.all().foreach(println)
-    }
-    case Failure(t) => println("An error has occurred on batch: " + t.getMessage)
-  }
-
-  val timestamp2 = DateTime.now
-
-  val thirdPost = Post(
-    id = UUID.randomUUID(),
+  val post3 = Post(
+    id = UUIDGen.getTimeUUID,
     title = "Erik Meijer: AGILE must be destroyed, once and for all",
     author = "Tim Anderson",
-    text = """""",
-    timestamp = timestamp2,
-    tags = Set("agile", "flames", "rant")
+    text = """A couple of months back, Dutch computer scientist Erik Meijer gave an outspoken and
+           distinctly anti-Agile talk at the Reaktor Dev Day in Finland.
+             |
+             |“Agile is a cancer that we have to eliminate from the industry,"
+             |said Meijer; harsh words for a methodology that started in the nineties as a
+             |lightweight alternative to bureaucratic and inflexible approaches to software development.""",
+    timestamp = new DateTime(2015, 1, 8, 0, 0, 0),
+    tags = Set("agile", "flames")
   )
 
-  val insertBatch = BlogDatabase.insertPost(otherPost)
+  val post4 = Post(
+    id = UUIDGen.getTimeUUID,
+    title = "Scala for-comprehension with concurrently running futures",
+    author = "Rado Buranský",
+    text =
+    """Can you tell what’s the difference between the following two?
+        |If yes, then you’re great and you don’t need to read further""".stripMargin,
+    timestamp = new DateTime(2014, 5, 12, 0, 0, 0),
+    tags = Set("scala", "futures")
+  )
 
-  val operations = for {
-    a <- futureResultSet
-    b <- futureBatch
-    c <- insertBatch
-  } yield ()
+  val post5 = Post(
+    id = UUIDGen.getTimeUUID,
+    title = "The Myth Makers 1: Scala's \"Type Types",
+    author = "Martin Odersky",
+    text =
+    """2008 has seen a lot of activity around Scala. All major IDEs now have working Scala plugins.
+        |A complete Scala tutorial and reference book was published and several others are in the pipeline.
+        | Scala is used in popular environments and frameworks,
+        | and is being adopted by more and more professional programmers in organizations
+        | like Twitter, Sony Imageworks, and Nature, along with many others.""".stripMargin,
+    timestamp = new DateTime(2008, 12, 18, 0, 0, 0),
+    tags = Set("scala", "types")
+  )
 
-  Await.result(operations, 10 seconds)
+  val posts = List(post1, post2, post3, post4).map(p => BlogDatabase.insertPost(p))
+
+  val operations = Future.sequence(posts)
+
+  Await.result(operations, 10.seconds)
+
+  val listOfOdersky: Future[List[PostByAuthor]] = BlogDatabase.selectByAuthor("Martin Odersky", 10)
+
+  listOfOdersky.onComplete {
+    case Success(list) => println(s"${list.size} posts by Odersky ")
+    case Failure(x) => println(x)
+  }
+
+  Await.result(listOfOdersky, 10.seconds)
+
+  val events = BlogDatabase.selectEventsWithFiltering(5)
+
+  events.onComplete {
+    case Success(list) => println(s"${list.size} events")
+    case Failure(x) => println(x)
+  }
+
+  Await.ready(events, 3.seconds)
+
+  println("Sample ended")
 
 }

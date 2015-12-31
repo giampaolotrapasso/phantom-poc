@@ -14,17 +14,14 @@ case class Comment(
   id: UUID,
   postId: UUID,
   text: String,
-  author: String,
-  timestamp: DateTime
+  author: String
 )
 
 sealed class CommentColumnFamily extends CassandraTable[CommentColumnFamily, Comment] {
 
-  object postId extends UUIDColumn(this) with PartitionKey[UUID]
+  object postId extends TimeUUIDColumn(this) with PartitionKey[UUID]
 
-  object id extends UUIDColumn(this) with ClusteringOrder[UUID]
-
-  object timestamp extends DateTimeColumn(this) with ClusteringOrder[DateTime] with Descending
+  object id extends TimeUUIDColumn(this) with ClusteringOrder[UUID] with Descending
 
   object text extends StringColumn(this)
 
@@ -32,13 +29,10 @@ sealed class CommentColumnFamily extends CassandraTable[CommentColumnFamily, Com
 
   override def fromRow(row: Row): Comment = {
     Comment(
-
       id = id(row),
       postId = postId(row),
-
       text = text(row),
-      author = author(row),
-      timestamp = timestamp(row)
+      author = author(row)
     )
   }
 
@@ -54,7 +48,6 @@ abstract class CommentTable extends CommentColumnFamily with RootConnector {
       .value(_.postId, comment.postId)
       .value(_.author, comment.author)
       .value(_.text, comment.text)
-      .value(_.timestamp, comment.timestamp)
   }
 
   def insertNew(comment: Comment): Future[ResultSet] = insertNewStatement(comment).future()

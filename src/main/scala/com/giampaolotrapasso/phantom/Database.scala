@@ -4,7 +4,7 @@ import com.datastax.driver.core.ResultSet
 import com.websudos.phantom.connectors.KeySpaceDef
 import com.websudos.phantom.db.DatabaseImpl
 import com.giampaolotrapasso.phantom.models._
-import com.websudos.phantom.dsl.Batch
+import com.websudos.phantom.dsl._
 
 //import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -20,22 +20,6 @@ class Database(val keyspace: KeySpaceDef) extends DatabaseImpl(keyspace) {
   object events extends EventTable with keyspace.Connector
 
   object postByAuthor extends PostByAuthorTable with keyspace.Connector
-
-  def insertPostBatch(post: Post, event: Event) = {
-
-    val postByAuthor = PostByAuthor(
-      postId = post.id,
-      title = post.title,
-      author = post.author,
-      timestamp = post.timestamp
-    )
-
-    Batch.logged
-      .add(BlogDatabase.postByAuthor.insertNewStatement(postByAuthor))
-      .add(BlogDatabase.posts.insertNewStatement(post))
-      .add(BlogDatabase.events.insertNewStatement(event))
-      .future()
-  }
 
   def insertCommentBatch(post: Post, comment: Comment) = {
     Batch.logged
@@ -59,6 +43,14 @@ class Database(val keyspace: KeySpaceDef) extends DatabaseImpl(keyspace) {
       .add(posts.insertNewStatement(post))
       .add(events.insertNewStatement(event))
       .future()
+  }
+
+  def selectByAuthor(author: String, limit: Int): Future[List[PostByAuthor]] = {
+    postByAuthor.select.where(_.author eqs author).limit(limit).fetch()
+  }
+
+  def selectEventsWithFiltering(limit: Int) = {
+    events.select.allowFiltering().limit(limit).fetch()
   }
 
 }

@@ -23,7 +23,7 @@ sealed class PostByAuthorColumnFamily extends CassandraTable[PostByAuthorColumnF
 
   object author extends StringColumn(this) with PartitionKey[String]
 
-  object postId extends UUIDColumn(this) with ClusteringOrder[UUID]
+  object postId extends TimeUUIDColumn(this) with ClusteringOrder[UUID] with Descending
 
   object title extends StringColumn(this) with ClusteringOrder[String]
 
