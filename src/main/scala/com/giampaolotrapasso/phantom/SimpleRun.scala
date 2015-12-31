@@ -88,7 +88,7 @@ object SimpleRun extends App {
     tags = Set("scala", "types")
   )
 
-  val posts = List(post1, post2, post3, post4).map(p => BlogDatabase.insertPost(p))
+  val posts = List(post1, post2, post3, post4, post5).map(p => BlogDatabase.insertPost(p))
 
   val operations = Future.sequence(posts)
 
