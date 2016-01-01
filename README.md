@@ -1,3 +1,7 @@
 # phantom-poc
 
-A simple Scala project to test the phantom-dsl to connect and manage operations over Cassandra database
+A simple Scala project to test the phantom-dsl to connect and manage operations over Cassandra database.
+
+I wanted to try the [phantom-dsl](https://github.com/websudos/phantom) library to connect to a Cassandra (C*) cluster to do basic stuff. This Scala project shows embodies simple inserts and selects on the db and a batch. 
+
+Moreover it shows you how to test with [cassandra-unit](https://github.com/jsevellec/cassandra-unit).
