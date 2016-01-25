@@ -51,7 +51,7 @@ abstract class PostTable extends PostColumnFamily with RootConnector {
 
   override val tableName = "posts"
 
-  def insertNewStatement(post: Post): InsertQuery[PostColumnFamily, Post, Unspecified] = {
+  def insertNewStatement(post: Post) = {
     insert
       .value(_.id, post.id)
       .value(_.title, post.title)

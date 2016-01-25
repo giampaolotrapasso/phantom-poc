@@ -43,7 +43,7 @@ abstract class PostByAuthorTable extends PostByAuthorColumnFamily with RootConne
 
   override val tableName = "posts_by_author"
 
-  def insertNewStatement(post: PostByAuthor): InsertQuery[PostByAuthorColumnFamily, PostByAuthor, Unspecified] = {
+  def insertNewStatement(post: PostByAuthor) = {
     insert
       .value(_.postId, post.postId)
       .value(_.title, post.title)

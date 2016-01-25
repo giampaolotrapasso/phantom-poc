@@ -6,7 +6,7 @@ name := """phantom-poc"""
 version := "1.0"
 
 scalaVersion := "2.11.7"
-lazy val phantomVersion = "1.12.2"
+lazy val phantomVersion = "1.21.1"
 lazy val cassandraVersion = "2.1.4"
 
 resolvers ++= Seq(
@@ -25,10 +25,8 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.4" % "test",
   "com.websudos" %% "phantom-dsl" % phantomVersion,
-  "com.websudos" %% "phantom-testkit" % phantomVersion,
   "joda-time" % "joda-time" % "2.9.1",
   "org.apache.cassandra" % "cassandra-all" % cassandraVersion,
-  "org.apache.cassandra" % "cassandra-thrift" % cassandraVersion,
   "com.datastax.cassandra" % "cassandra-driver-core" % cassandraVersion,
   "commons-pool" % "commons-pool" % "1.6",
   "org.scalatest" %% "scalatest" % "2.2.4" % "test"

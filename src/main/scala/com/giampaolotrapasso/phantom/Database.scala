@@ -38,11 +38,12 @@ class Database(val keyspace: KeySpaceDef) extends DatabaseImpl(keyspace) {
       timestamp = post.timestamp
     )
 
-    Batch.logged
+    val batch = Batch.logged
       .add(this.postByAuthor.insertNewStatement(postByAuthor))
       .add(posts.insertNewStatement(post))
       .add(events.insertNewStatement(event))
-      .future()
+
+    batch.future
   }
 
   def selectByAuthor(author: String, limit: Int): Future[List[PostByAuthor]] = {
