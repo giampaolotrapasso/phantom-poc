@@ -2,11 +2,8 @@ package com.giampaolotrapasso.phantom.models
 
 import java.util.UUID
 
-import com.datastax.driver.core.{ ResultSet, Row }
+import com.datastax.driver.core.Row
 import com.websudos.phantom.CassandraTable
-import com.websudos.phantom.builder.Unspecified
-import com.websudos.phantom.builder.query.InsertQuery
-import com.websudos.phantom.column.{ DateTimeColumn, SetColumn }
 import com.websudos.phantom.dsl._
 import org.joda.time.DateTime
 

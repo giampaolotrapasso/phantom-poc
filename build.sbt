@@ -6,9 +6,9 @@ name := """phantom-poc"""
 version := "1.0"
 
 scalaVersion := "2.11.7"
-lazy val phantomVersion = "1.21.2"
-lazy val cassandraVersion = "2.1.4"
-lazy val driverCore = "3.0.0-rc1"
+lazy val phantomVersion = "1.25.4"
+lazy val cassandraVersion = "2.2.5"
+lazy val driverCore = "3.0.0"
 
 resolvers ++= Seq(
   "Typesafe repository snapshots"    at "http://repo.typesafe.com/typesafe/snapshots/",

@@ -4,9 +4,7 @@ import java.util.UUID
 
 import com.datastax.driver.core.{ ResultSet, Row }
 import com.websudos.phantom.CassandraTable
-import com.websudos.phantom.column.{ DateTimeColumn, SetColumn, PrimitiveColumn }
 import com.websudos.phantom.dsl._
-import org.joda.time.DateTime
 
 import scala.concurrent.Future
 
